@@ -51,7 +51,7 @@ object ActionsManager {
         requestAccount,
         personalSign,
         switchEthereumChain,
-        getSendTransaction(fromAddress, toAddress)
+//        getSendTransaction(fromAddress, toAddress)
     )
 }
 
