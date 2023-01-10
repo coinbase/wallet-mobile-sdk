@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 import CoinbaseWalletSDK
 
+// TODO: rename to MWPClientFlutterPlugin
 public class SwiftCoinbaseWalletSdkFlutterPlugin: NSObject, FlutterPlugin {
     private static let success = "{ \"success\": true}"
     
@@ -15,63 +16,77 @@ public class SwiftCoinbaseWalletSdkFlutterPlugin: NSObject, FlutterPlugin {
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         do {
-            if (call.method == "configure") {
-                return configure(call: call, result: result)
-            }
+            switch call.method {
+            case "static_configure":
+                return try configure(call.arguments, result: result)
+            case "static_getWallets":
+                return try getWallets(result: result)
             
-            if (call.method == "initiateHandshake") {
-                return try initiateHandshake(call: call, result: result)
-            }
+            case "initiateHandshake":
+                return try initiateHandshake(call.arguments, result: result)
+            case "makeRequest":
+                return try makeRequest(call.arguments, result: result)
+            case "isConnected":
+                return try isConnected(call.arguments, result: result)
+            case "resetSession":
+                return try resetSession(call.arguments, result: result)
             
-            if (call.method == "makeRequest") {
-                return try makeRequest(call: call, result: result)
-            }
-            
-            if (call.method == "resetSession") {
-                return resetSession(call: call, result: result)
-            }
-
-            if (call.method == "isAppInstalled") {
-                return isAppInstalled(result: result)
+            default:
+                result(FlutterMethodNotImplemented)
+                return
             }
         } catch {
-            result(FlutterError(code: "handle", message: error.localizedDescription, details: nil))
-            return
+            result(FlutterError(code: call.method, message: error.localizedDescription, details: nil))
         }
-        
-        result(FlutterMethodNotImplemented)
-    }
-
-    private func isAppInstalled(result: @escaping FlutterResult) {
-        result(CoinbaseWalletSDK.isCoinbaseWalletInstalled())
     }
     
-    private func configure(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    enum HandleMethodCallError: Swift.Error, LocalizedError {
+        case invalidArgumentFormat
+        case noMWPClient
+        case missingArgument
+        
+        var errorDescription: String? { return String(reflecting: self) }
+    }
+    
+    private func configure(_ args: Any?, result: @escaping FlutterResult) throws {
         guard
-            let args = call.arguments as? [String: Any],
-            let host = args["host"] as? String,
+            let args = args as? [String: Any],
             let callback = args["callback"] as? String,
-            let hostURL = URL(string: host),
             let callbackURL = URL(string: callback)
         else {
-            result(FlutterError(code: "configure", message: "Invalid arguments", details: nil))
-            return
+            throw HandleMethodCallError.invalidArgumentFormat
         }
-        
-        CoinbaseWalletSDK.configure(host: hostURL,callback: callbackURL)
-        CoinbaseWalletSDK.appendVersionTag("flutter")
+        MWPClient.configure(callback: callbackURL)
+        MobileWalletProtocol.appendVersionTag("flutter")
         
         result(SwiftCoinbaseWalletSdkFlutterPlugin.success)
     }
     
-    private func initiateHandshake(call: FlutterMethodCall, result: @escaping FlutterResult) throws {
-        var actions = [Action]()
-        
-        if let args = call.arguments as? String, let jsonData = args.data(using: .utf8) {
-            actions = try JSONDecoder().decode([Action].self, from: jsonData)
+    // MARK: - instance methods
+    
+    private func decodeArguments<T: Decodable>(_ args: Any?, extraArgType: T.Type) throws -> (Wallet, T?)  {
+        guard
+            let args = args as? String,
+            let jsonData = args.data(using: .utf8)
+        else {
+            throw HandleMethodCallError.invalidArgumentFormat
         }
         
-        CoinbaseWalletSDK.shared.initiateHandshake(initialActions: actions) { responseResult, account in
+        let typedArgs = try JSONDecoder().decode(
+            InstanceMethodArgument<T>.self,
+            from: jsonData
+        )
+        return (typedArgs.wallet, typedArgs.argument)
+    }
+    
+    private func initiateHandshake(_ args: Any?, result: @escaping FlutterResult) throws {
+        let (wallet, actions) = try decodeArguments(args, extraArgType: [Action].self)
+        
+        guard let client = MWPClient.getInstance(to: wallet) else {
+            throw HandleMethodCallError.noMWPClient
+        }
+        
+        client.initiateHandshake(initialActions: actions) { responseResult, account in
             self.handleResponse(
                 code: "initiateHandshake",
                 responseResult: responseResult,
@@ -81,18 +96,18 @@ public class SwiftCoinbaseWalletSdkFlutterPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    private func makeRequest(call: FlutterMethodCall, result: @escaping FlutterResult) throws {
-        guard
-            let args = call.arguments as? String,
-            let jsonData = args.data(using: .utf8)
-        else {
-            result(FlutterError(code: "makeRequest", message: "Invalid arguments", details: nil))
-            return
+    private func makeRequest(_ args: Any?, result: @escaping FlutterResult) throws {
+        let (wallet, request) = try decodeArguments(args, extraArgType: Request.self)
+        
+        guard let client = MWPClient.getInstance(to: wallet) else {
+            throw HandleMethodCallError.noMWPClient
         }
         
-        let request = try JSONDecoder().decode(Request.self, from: jsonData)
+        guard let request = request else {
+            throw HandleMethodCallError.missingArgument
+        }
         
-        CoinbaseWalletSDK.shared.makeRequest(request) { responseResult in
+        client.makeRequest(request) { responseResult in
             self.handleResponse(
                 code: "makeRequest",
                 responseResult: responseResult,
@@ -102,8 +117,24 @@ public class SwiftCoinbaseWalletSdkFlutterPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    private func resetSession(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let responseResult = CoinbaseWalletSDK.shared.resetSession()
+    private func isConnected(_ args: Any?, result: @escaping FlutterResult) throws {
+        let (wallet, _) = try decodeArguments(args, extraArgType: NoArgument.self)
+        
+        guard let client = MWPClient.getInstance(to: wallet) else {
+            throw HandleMethodCallError.noMWPClient
+        }
+        
+        result(client.isConnected())
+    }
+    
+    private func resetSession(_ args: Any?, result: @escaping FlutterResult) throws {
+        let (wallet, _) = try decodeArguments(args, extraArgType: NoArgument.self)
+        
+        guard let client = MWPClient.getInstance(to: wallet) else {
+            throw HandleMethodCallError.noMWPClient
+        }
+        
+        let responseResult = client.resetSession()
         
         switch responseResult {
         case .success:
@@ -154,5 +185,19 @@ public class SwiftCoinbaseWalletSdkFlutterPlugin: NSObject, FlutterPlugin {
         } catch {
             result(FlutterError(code: code, message: error.localizedDescription, details: nil))
         }
+    }
+    
+    private func getWallets(result: @escaping FlutterResult) throws {
+        let dictArray = try Wallet.defaultWallets().map { wallet in
+            var dictionary = try JSONSerialization.jsonObject(
+                with: try JSONEncoder().encode(wallet),
+                options: .allowFragments
+            ) as! [String: Any]
+            dictionary["isInstalled"] = wallet.isInstalled
+            return dictionary
+        }
+        let encodedData = try JSONSerialization.data(withJSONObject: dictArray)
+        let jsonString = String(data: encodedData, encoding: .utf8)
+        result(jsonString)
     }
 }
