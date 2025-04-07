@@ -1,0 +1,22 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.spec.category.Messages": {
+    "message": "Messages",
+    "description": "The label for category Messages in sidebar spec"
+  },
+  "sidebar.clientSdk.category.iOS": {
+    "message": "iOS",
+    "description": "The label for category iOS in sidebar clientSdk"
+  },
+  "sidebar.clientSdk.category.Android": {
+    "message": "Android",
+    "description": "The label for category Android in sidebar clientSdk"
+  },
+  "sidebar.clientSdk.category.Unity": {
+    "message": "Unity",
+    "description": "The label for category Unity in sidebar clientSdk"
+  }
+}
