@@ -16,7 +16,7 @@ Add Coinbase Wallet SDK to your `Podfile`.
 use_frameworks!
 
 target 'YOUR_TARGET_NAME' do
-    pod 'CoinbaseWalletSDK', '1.0.3'
+    pod 'CoinbaseWalletSDK', '1.1.2'
 end
 ```
 
@@ -38,7 +38,7 @@ import PackageDescription
 let package = Package(
     name: "YOUR_PROJECT_NAME",
     dependencies: [
-        .package(url: "https://github.com/coinbase/wallet-mobile-sdk.git", from: "1.0.3"),
+        .package(url: "https://github.com/coinbase/wallet-mobile-sdk.git", from: "1.1.2"),
     ]
 )
 ```
