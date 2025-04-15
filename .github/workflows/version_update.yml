@@ -9,6 +9,11 @@ on:
         default: ""
 
 jobs:
+  environment: release
+  permissions:
+    contents: write
+    pull-requests: write
+    id-token: write
   authorize:
     name: Authorize
     runs-on: ubuntu-latest
