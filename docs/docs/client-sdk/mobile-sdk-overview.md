@@ -12,6 +12,7 @@ The SDK is available for the following platforms:
 
 - [iOS](https://cocoapods.org/pods/CoinbaseWalletSDK)
 - [Android](https://mavenlibs.com/maven/dependency/com.coinbase/coinbase-wallet-sdk)
+- [Unity](https://github.com/openfort-xyz/mobile-wallet-protocol-unity-client)
 
 We also provide wrapper libraries and modules for [React Native](https://www.npmjs.com/package/@coinbase/wallet-mobile-sdk) and [Flutter](https://pub.dev/packages/coinbase_wallet_sdk) applications.
 

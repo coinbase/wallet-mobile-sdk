@@ -1,0 +1,18 @@
+{
+  "title": {
+    "message": "Mobile Wallet Protocol",
+    "description": "The title in the navbar"
+  },
+  "item.label.Spec": {
+    "message": "Spec",
+    "description": "Navbar item with label Spec"
+  },
+  "item.label.Client SDK": {
+    "message": "Client SDK",
+    "description": "Navbar item with label Client SDK"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}
