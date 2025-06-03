@@ -60,13 +60,24 @@ const sidebars = {
     },
     {
       type: "category",
-      label: "Unity",
+      label: "Community SDKs",
+      collapsed: false,
+      link: {
+        type: 'doc',
+        id: 'client-sdk/community-sdks',
+      },
       items: [
-        "client-sdk/unity-install",
-        "client-sdk/unity-setup",
-        "client-sdk/unity-establishing-a-connection",
-        "client-sdk/unity-making-requests",
-        "client-sdk/unity-api-reference"
+        {
+          type: "category",
+          label: "Unity",
+          items: [
+            "client-sdk/unity-install",
+            "client-sdk/unity-setup",
+            "client-sdk/unity-establishing-a-connection",
+            "client-sdk/unity-making-requests",
+            "client-sdk/unity-api-reference"
+          ]
+        }
       ]
     }
   ],
