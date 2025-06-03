@@ -15,6 +15,13 @@ The SDK is available for the following platforms:
 
 We also provide wrapper libraries and modules for [React Native](https://www.npmjs.com/package/@coinbase/wallet-mobile-sdk) and [Flutter](https://pub.dev/packages/coinbase_wallet_sdk) applications.
 
+### Community SDKs
+
+Looking for support for other platforms? Check out our [community-maintained SDKs](./community-sdks) for additional language and platform support. Please note that these are not officially maintained by Coinbase.
+
+- [Unity](https://github.com/openfort-xyz/mobile-wallet-protocol-unity-client)
+
+
 ## Features
 
 - **Easy**: Simplified and improved wallet integration for native mobile applications via deep-linking, without requiring a web application.

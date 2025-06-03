@@ -57,6 +57,28 @@ const sidebars = {
         "client-sdk/android-making-requests",
         "client-sdk/android-api-reference"
       ]
+    },
+    {
+      type: "category",
+      label: "Community SDKs",
+      collapsed: false,
+      link: {
+        type: 'doc',
+        id: 'client-sdk/community-sdks',
+      },
+      items: [
+        {
+          type: "category",
+          label: "Unity",
+          items: [
+            "client-sdk/unity-install",
+            "client-sdk/unity-setup",
+            "client-sdk/unity-establishing-a-connection",
+            "client-sdk/unity-making-requests",
+            "client-sdk/unity-api-reference"
+          ]
+        }
+      ]
     }
   ],
   
