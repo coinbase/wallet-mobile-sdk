@@ -8,20 +8,21 @@ on:
         required: true
         default: ""
 
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
 jobs:
-  environment: release
-  permissions:
-    contents: write
-    pull-requests: write
-    id-token: write
   authorize:
     name: Authorize
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - name: ${{ github.actor }} permission check to update release version
-        uses: "lannonbr/repo-permission-check-action@2.0.2"
+        uses: lannonbr/repo-permission-check-action@2.0.2
         with:
-          permission: "write"
+          permission: write
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
